@@ -44,9 +44,20 @@ three sub-modules for specialized kinds of parsing:
 """
 
 
-##//////////////////////////////////////////////////////
-##  Parser Interface
-##//////////////////////////////////////////////////////
+# //////////////////////////////////////////////////////
+# Parser Interface
+# //////////////////////////////////////////////////////
+from .viterbi import *
+from .chart import *
+from .chunk import *
+from .rd import *
+from .sr import *
+from .featurestructure import *
+from .pcfg import *
+from .cfg import *
+from .tree import *
+
+
 class ParseI(object):
     """
     A processing class for deriving trees that represent possible
@@ -55,8 +66,9 @@ class ParseI(object):
     trees for sentences.  But parsers can also be used to derive other
     kinds of tree structure, such as morphological trees and discourse
     structures.
-    
+
     """
+
     def parse(self, sent):
         """
         Derive a parse tree that represents the structure of the given
@@ -112,9 +124,10 @@ class ParseI(object):
         @type sent: L{list} of L{string}
         """
 
-##//////////////////////////////////////////////////////
-##  Abstract Base Class for Parsers
-##//////////////////////////////////////////////////////
+
+# //////////////////////////////////////////////////////
+# Abstract Base Class for Parsers
+# //////////////////////////////////////////////////////
 class AbstractParse(ParseI):
     """
     An abstract base class for parsers.  C{AbstractParse} provides
@@ -127,6 +140,7 @@ class AbstractParse(ParseI):
     Note that subclasses must override either C{get_parse} or
     C{get_parse_list} (or both), to avoid infinite recursion.
     """
+
     def __init__(self):
         """
         Construct a new parser.
@@ -143,20 +157,14 @@ class AbstractParse(ParseI):
 
     def get_parse(self, token):
         trees = self.get_parse_list(token)
-        if len(trees) == 0: return None
-        else: return trees[0]
-    
+        if len(trees) == 0:
+            return None
+        else:
+            return trees[0]
+
     def get_parse_list(self, token):
         tree = self.get_parse(token)
-        if tree is None: return []
-        else: return [tree]
-
-from .tree import *
-from .cfg import *
-from .pcfg import *
-from .featurestructure import *
-from .sr import *
-from .rd import *
-from .chunk import *
-from .chart import *
-from .viterbi import *
+        if tree is None:
+            return []
+        else:
+            return [tree]

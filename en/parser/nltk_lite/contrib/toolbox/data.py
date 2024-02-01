@@ -14,6 +14,7 @@
 from en.parser.nltk_lite.etree.ElementTree import TreeBuilder
 from en.parser.nltk_lite.corpora import toolbox
 
+
 class ToolboxData(toolbox.ToolboxData):
     def __init__(self):
         super(toolbox.ToolboxData, self).__init__()
@@ -31,11 +32,11 @@ class ToolboxData(toolbox.ToolboxData):
         parse_table = dict()
         for state in list(gram.keys()):
             parse_table[state] = dict()
-            for to_sym in gram[state]:        
+            for to_sym in gram[state]:
                 if to_sym in grammar:
                     # is a nonterminal
                     # assume all firsts are terminals
-                    for i in first[to_sym]:        
+                    for i in first[to_sym]:
                         parse_table[state][i] = to_sym
                 else:
                     parse_table[state][to_sym] = to_sym
@@ -45,22 +46,22 @@ class ToolboxData(toolbox.ToolboxData):
         """
         Returns an element tree structure corresponding to a toolbox data file
         parsed according to the grammar.
-        
+
         @type startsym: string
         @param startsym: Start symbol used for the grammar
         @type grammar: dictionary of tuple of tuples
-        @param grammar: Contains the set of rewrite rules used to parse the 
+        @param grammar: Contains the set of rewrite rules used to parse the
         database.  See the description below.
         @param kwargs: Keyword arguments passed to L{toolbox.StandardFormat.fields()}
         @type kwargs: keyword arguments dictionary
         @rtype:   ElementTree._ElementInterface
         @return:  Contents of toolbox data parsed according to rules in grammar
-        
-        The rewrite rules in the grammar look similar to those usually used in 
-        computer languages. The difference is that the ordering constraints 
-        that are usually present are relaxed in this parser. The reason is that 
-        toolbox databases seldom have consistent ordering of fields. Hence the 
-        right side of each rule consists of a tuple with two parts. The 
+
+        The rewrite rules in the grammar look similar to those usually used in
+        computer languages. The difference is that the ordering constraints
+        that are usually present are relaxed in this parser. The reason is that
+        toolbox databases seldom have consistent ordering of fields. Hence the
+        right side of each rule consists of a tuple with two parts. The
         fields in the first part mark the start of nonterminal.
         Each of them can occur only once and all those must
         occur before any of the fields in the second part of that nonterminal.
@@ -70,7 +71,7 @@ class ToolboxData(toolbox.ToolboxData):
         The fields in the second part of the tuple can occur in any order.
 
         Sample grammar::
-        
+
             grammar = {
                 'toolbox':  (('_sh',),      ('_DateStampHasFourDigitYear', 'entry')),
                 'entry':    (('lx',),       ('hm', 'sense', 'dt')),
@@ -114,7 +115,10 @@ class ToolboxData(toolbox.ToolboxData):
                                 builder.end(state)
                                 pstack.pop()
                             else:
-                                raise ValueError('Line %d: syntax error, unexpected marker %s.' % (self.line_num, mkr))
+                                raise ValueError(
+                                    "Line %d: syntax error, unexpected marker %s."
+                                    % (self.line_num, mkr)
+                                )
                     else:
                         # start of terminal marker
                         add = True
@@ -137,7 +141,10 @@ class ToolboxData(toolbox.ToolboxData):
                     builder.end(state)
                     pstack.pop()
                 else:
-                    raise ValueError('Line %d: syntax error, unexpected marker %s.' % (self.line_num, mkr))
+                    raise ValueError(
+                        "Line %d: syntax error, unexpected marker %s."
+                        % (self.line_num, mkr)
+                    )
         for state, first_elems in reversed(pstack):
             builder.end(state)
         return builder.close()
@@ -146,36 +153,39 @@ class ToolboxData(toolbox.ToolboxData):
 def indent(elem, level=0):
     """
     Recursive function to indent an ElementTree._ElementInterface
-    used for pretty printing. Code from 
+    used for pretty printing. Code from
     U{http://www.effbot.org/zone/element-lib.htm}. To use run indent
-    on elem and then output in the normal way. 
-    
-    @param elem: element to be indented. will be modified. 
+    on elem and then output in the normal way.
+
+    @param elem: element to be indented. will be modified.
     @type elem: ElementTree._ElementInterface
     @param level: level of indentation for this element
     @type level: nonnegative integer
     @rtype:   ElementTree._ElementInterface
     @return:  Contents of elem indented to reflect its structure
     """
-    i = "\n" + level*"  "
+    i = "\n" + level * "  "
     if len(elem):
         if not elem.text or not elem.text.strip():
             elem.text = i + "  "
         for elem in elem:
-            indent(elem, level+1)
+            indent(elem, level + 1)
         if not elem.tail or not elem.tail.strip():
             elem.tail = i
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
-            
+
+
 def demo_flat():
-    from en.parser.nltk_lite.etree.ElementTree import ElementTree    
+    from en.parser.nltk_lite.etree.ElementTree import ElementTree
     import sys
 
-    tree = ElementTree(toolbox.parse_corpus('iu_mien_samp.db', key='lx', encoding='utf8'))
+    tree = ElementTree(
+        toolbox.parse_corpus("iu_mien_samp.db", key="lx", encoding="utf8")
+    )
     tree.write(sys.stdout)
-    
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     demo_flat()

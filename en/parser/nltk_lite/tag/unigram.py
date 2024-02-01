@@ -22,6 +22,7 @@ from en.parser.nltk_lite.probability import FreqDist, ConditionalFreqDist
 
 from en.parser.nltk_lite.tag import *
 
+
 class Unigram(SequentialBackoff):
     """
     A unigram stochastic tagger.  Before C{tag.Unigram} can be
@@ -32,6 +33,7 @@ class Unigram(SequentialBackoff):
     word which it has no data, it will assign it the
     tag C{None}.
     """
+
     def __init__(self, cutoff=1, backoff=None):
         """
         Construct a new unigram stochastic tagger.  The new tagger
@@ -42,11 +44,11 @@ class Unigram(SequentialBackoff):
         self._cutoff = cutoff
         self._backoff = backoff
         self._history = None
-        
+
     def train(self, tagged_corpus, verbose=False):
         """
         Train C{tag.Unigram} using the given training data.
-        
+
         @param tagged_corpus: A tagged corpus.  Each item should be
             a C{list} of tagged tokens, where each consists of
             C{text} and a C{tag}.
@@ -54,7 +56,7 @@ class Unigram(SequentialBackoff):
         """
 
         if self.size() != 0:
-            raise ValueError('Tagger is already trained')
+            raise ValueError("Tagger is already trained")
         token_count = hit_count = 0
         fd = ConditionalFreqDist()
 
@@ -62,7 +64,7 @@ class Unigram(SequentialBackoff):
             tagged_corpus = [tagged_corpus]
 
         for sentence in tagged_corpus:
-            for (token, tag) in sentence:
+            for token, tag in sentence:
                 token_count += 1
                 fd[token].inc(tag)
         for token in fd.conditions():
@@ -75,19 +77,18 @@ class Unigram(SequentialBackoff):
             if best_tag != backoff_tag and hits > self._cutoff:
                 self._model[token] = best_tag
                 hit_count += hits
-            
+
         # generate stats
         if verbose:
             size = len(self._model)
-            backoff = 100 - (hit_count * 100.0)/ token_count
+            backoff = 100 - (hit_count * 100.0) / token_count
             pruning = 100 - (size * 100.0) / len(fd.conditions())
-            print("[Trained Unigram tagger:", end=' ')
-            print("size=%d, backoff=%.2f%%, pruning=%.2f%%]" % (
-                size, backoff, pruning))
+            print("[Trained Unigram tagger:", end=" ")
+            print("size=%d, backoff=%.2f%%, pruning=%.2f%%]" % (size, backoff, pruning))
 
     def tag_one(self, token, history=None):
         if self.size() == 0:
-            raise ValueError('Tagger is not trained')
+            raise ValueError("Tagger is not trained")
         if token in self._model:
             return self._model[token]
         if self._backoff:
@@ -98,8 +99,7 @@ class Unigram(SequentialBackoff):
         return len(self._model)
 
     def __repr__(self):
-        return '<Unigram Tagger: size=%d, cutoff=%d>' % (
-            self.size(), self._cutoff)
+        return "<Unigram Tagger: size=%d, cutoff=%d>" % (self.size(), self._cutoff)
 
 
 # Affix tagger, based on code by Tiago Tresoldi <tresoldi@users.sf.net>
@@ -115,42 +115,43 @@ class Affix(SequentialBackoff):
     encounters a prefix or suffix in a word for which it has no data,
     it will assign the tag C{None}.
     """
-    def __init__ (self, length, minlength, cutoff=1, backoff=None):
+
+    def __init__(self, length, minlength, cutoff=1, backoff=None):
         """
         Construct a new affix stochastic tagger. The new tagger should be
         trained, using the L{train()} method, before it is used to tag
         data.
-        
+
         @type length: C{number}
-        @param length: The length of the affix to be considered during 
+        @param length: The length of the affix to be considered during
             training and tagging (negative for suffixes)
         @type minlength: C{number}
         @param minlength: The minimum length for a word to be considered
             during training and tagging. It must be longer that C{length}.
         """
-#        SequentialBackoff.__init__(self)
+        #        SequentialBackoff.__init__(self)
         self._model = {}
-        
+
         assert minlength > 0
-        
+
         self._length = length
         self._minlength = minlength
         self._cutoff = cutoff
         self._backoff = backoff
         self._history = None
-        
+
     def _get_affix(self, token):
         if self._length > 0:
-            return token[:self._length]
+            return token[: self._length]
         else:
-            return token[self._length:]
+            return token[self._length :]
 
     def train(self, tagged_corpus, verbose=False):
         """
         Train C{tag.Affix} using the given training data. If this
         method is called multiple times, then the training data will be
         combined.
-        
+
         @param tagged_corpus: A tagged corpus.  Each item should be
             a C{list} of tagged tokens, where each consists of
             C{text} and a C{tag}.
@@ -158,12 +159,12 @@ class Affix(SequentialBackoff):
         """
 
         if self.size() != 0:
-            raise ValueError('Tagger is already trained')
+            raise ValueError("Tagger is already trained")
         token_count = hit_count = 0
         fd = ConditionalFreqDist()
-        
+
         for sentence in tagged_corpus:
-            for (token, tag) in sentence:
+            for token, tag in sentence:
                 token_count += 1
                 # If token is long enough
                 if len(token) >= self._minlength:
@@ -180,15 +181,14 @@ class Affix(SequentialBackoff):
         # generate stats
         if verbose:
             size = len(self._model)
-            backoff = 100 - (hit_count * 100.0)/ token_count
+            backoff = 100 - (hit_count * 100.0) / token_count
             pruning = 100 - (size * 100.0) / len(fd.conditions())
-            print("[Trained Affix tagger:", end=' ')
-            print("size=%d, backoff=%.2f%%, pruning=%.2f%%]" % (
-                size, backoff, pruning))
+            print("[Trained Affix tagger:", end=" ")
+            print("size=%d, backoff=%.2f%%, pruning=%.2f%%]" % (size, backoff, pruning))
 
     def tag_one(self, token, history=None):
         if self.size() == 0:
-            raise ValueError('Tagger is not trained')
+            raise ValueError("Tagger is not trained")
         affix = self._get_affix(token)
         if len(token) >= self._minlength and affix in self._model:
             return self._model[affix]
@@ -200,14 +200,14 @@ class Affix(SequentialBackoff):
         return len(self._model)
 
     def __repr__(self):
-        return '<Affix Tagger: size=%d, cutoff=%d>' % (
-            self.size(), self._cutoff)
+        return "<Affix Tagger: size=%d, cutoff=%d>" % (self.size(), self._cutoff)
 
 
 class Regexp(SequentialBackoff):
     """
     A tagger that assigns tags to words based on regular expressions.
     """
+
     def __init__(self, regexps, backoff=None):
         """
         Construct a new regexp tagger.
@@ -226,19 +226,21 @@ class Regexp(SequentialBackoff):
 
     def tag_one(self, token, history=None):
         for regexp, tag in self._regexps:
-            if re.match(regexp, token): # ignore history
+            if re.match(regexp, token):  # ignore history
                 return tag
         if self._backoff:
             return self._backoff.tag_one(token, history)
         return None
 
     def __repr__(self):
-        return '<Regexp Tagger: size=%d>' % len(self._regexps)
+        return "<Regexp Tagger: size=%d>" % len(self._regexps)
+
 
 class Lookup(SequentialBackoff):
     """
     A tagger that assigns tags to words based on a lookup table.
     """
+
     def __init__(self, table, backoff=None):
         """
         Construct a new lookup tagger.
@@ -262,16 +264,20 @@ class Lookup(SequentialBackoff):
         return None
 
     def __repr__(self):
-        return '<Lookup Tagger: size=%d>' % len(self._table)
+        return "<Lookup Tagger: size=%d>" % len(self._table)
 
-##//////////////////////////////////////////////////////
-##  Demonstration
-##//////////////////////////////////////////////////////
+
+# //////////////////////////////////////////////////////
+# Demonstration
+# //////////////////////////////////////////////////////
+
 
 def _demo_tagger(tagger, gold):
     from en.parser.nltk_lite.tag import accuracy
+
     acc = accuracy(tagger, gold)
-    print('Accuracy = %4.1f%%' % (100.0 * acc))
+    print("Accuracy = %4.1f%%" % (100.0 * acc))
+
 
 def demo():
     """
@@ -284,46 +290,46 @@ def demo():
     from en.parser.nltk_lite import tag
     import sys
 
-    print('Training taggers.')
+    print("Training taggers.")
 
     # Create a default tagger
-    t0 = tag.Default('nn')
+    t0 = tag.Default("nn")
 
     t1 = tag.Unigram(cutoff=1, backoff=t0)
-    t1.train(brown.tagged('a'), verbose=True)
+    t1.train(brown.tagged("a"), verbose=True)
 
     t2 = tag.Affix(-3, 5, cutoff=2, backoff=t0)
-    t2.train(brown.tagged('a'), verbose=True)
+    t2.train(brown.tagged("a"), verbose=True)
 
-    t3 = tag.Regexp([(r'.*ed', 'vbd')], backoff=t0)  # no training
+    t3 = tag.Regexp([(r".*ed", "vbd")], backoff=t0)  # no training
 
-    t4 = tag.Lookup({'the': 'dt'}, backoff=t0)
+    t4 = tag.Lookup({"the": "dt"}, backoff=t0)
 
     test_tokens = []
     num_words = 0
 
-    print('='*75)
-    print('Running the taggers on test data...')
-    print('  Default (nn) tagger: ', end=' ')
+    print("=" * 75)
+    print("Running the taggers on test data...")
+    print("  Default (nn) tagger: ", end=" ")
     sys.stdout.flush()
-    _demo_tagger(t0, brown.tagged('b'))
+    _demo_tagger(t0, brown.tagged("b"))
 
-    print('  Unigram tagger:      ', end=' ')
+    print("  Unigram tagger:      ", end=" ")
     sys.stdout.flush()
-    _demo_tagger(t1, list(brown.tagged('b'))[:1000])
+    _demo_tagger(t1, list(brown.tagged("b"))[:1000])
 
-    print('  Affix tagger:        ', end=' ')
+    print("  Affix tagger:        ", end=" ")
     sys.stdout.flush()
-    _demo_tagger(t2, list(brown.tagged('b'))[:1000])
+    _demo_tagger(t2, list(brown.tagged("b"))[:1000])
 
-    print('  Regexp tagger:       ', end=' ')
+    print("  Regexp tagger:       ", end=" ")
     sys.stdout.flush()
-    _demo_tagger(t3, list(brown.tagged('b'))[:1000])
+    _demo_tagger(t3, list(brown.tagged("b"))[:1000])
 
-    print('  Lookup tagger:       ', end=' ')
+    print("  Lookup tagger:       ", end=" ")
     sys.stdout.flush()
-    _demo_tagger(t4, list(brown.tagged('b'))[:1000])
+    _demo_tagger(t4, list(brown.tagged("b"))[:1000])
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     demo()
-

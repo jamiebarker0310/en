@@ -19,18 +19,22 @@ morphological rules, and part-of-speech and sense ambiguities
 C{StemI} defines a standard interface for stemmers.
 """
 
+from .porter import *
+from .regexp import *
 import re
 
-##//////////////////////////////////////////////////////
-##  Stemmer Interface
-##//////////////////////////////////////////////////////
+# //////////////////////////////////////////////////////
+# Stemmer Interface
+# //////////////////////////////////////////////////////
+
 
 class StemI(object):
     """
     A processing interface for removing morphological affixes from
     words.  This process is known as X{stemming}.
-    
+
     """
+
     def stem(self, token):
         """
         Strip affixes from the token and return the stem.
@@ -39,7 +43,3 @@ class StemI(object):
         @type token: L{string}
         """
         raise NotImplementedError()
-
-
-from .regexp import *
-from .porter import *
