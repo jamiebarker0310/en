@@ -6,11 +6,8 @@
 # URL: <http://nltk.sf.net>
 # For license information, see LICENSE.TXT
 
-from en.parser.nltk_lite.parse import ParseI, AbstractParse
-from en.parser.nltk_lite.parse import cfg, pcfg
+from en.parser.nltk_lite.parse.abstract_parse import AbstractParse
 from en.parser.nltk_lite.parse.tree import Tree, ProbabilisticTree
-from en.parser.nltk_lite.parse.chart import Chart, LeafEdge, TreeEdge, AbstractChartRule
-import types
 from functools import reduce
 
 # //////////////////////////////////////////////////////

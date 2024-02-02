@@ -36,7 +36,7 @@ clearly(adv.)
 [{noun: Canis, genus Canis}, {noun: pack}]
 """
 
-from types import IntType, ListType, StringType, TupleType
+# from types import int, ListType, str, TupleType
 from os import environ
 import os
 import string
@@ -52,13 +52,11 @@ __version__ = "2.0.1"
 WNHOME = environ.get(
     "WNHOME",
     {"mac": ":", "dos": "C:\\wn16", "nt": "C:\\Program Files\\WordNet\\2.0"}.get(
-        os.name, "/usr/local/wordnet2.0"
+        os.name, "/Users/jamiebarker/nltk_data/corpora/wordnet"
     ),
 )
 
-WNSEARCHDIR = environ.get(
-    "WNSEARCHDIR", os.path.join(WNHOME, {"mac": "Database"}.get(os.name, "dict"))
-)
+WNSEARCHDIR = WNHOME
 
 ReadableRepresentations = 1
 """If true, repr(word), repr(sense), and repr(synset) return
@@ -215,9 +213,9 @@ class Word:
 
     def __init__(self, line):
         """Initialize the word from a line of a WN POS file."""
-        tokens = string.split(line)
+        tokens = line.split()
         ints = list(map(int, tokens[int(tokens[3]) + 4 :]))
-        self.form = string.replace(tokens[0], "_", " ")
+        self.form = tokens[0].replace("_", " ")
         "Orthographic representation of the word."
         self.pos = _normalizePOS(tokens[1])
         "Part of speech.  One of NOUN, VERB, ADJECTIVE, ADVERB."
@@ -539,7 +537,7 @@ class Synset:
         senses = self.getSenses()
         if isinstance(idx, Word):
             idx = idx.form
-        if isinstance(idx, StringType):
+        if isinstance(idx, str):
             idx = _index(idx, [sense.form for sense in senses]) or _index(
                 idx, [sense.form for sense in senses], _equalsIgnoreCase
             )
@@ -822,7 +820,7 @@ class Lexname:
 
 def setupLexnames():
     for l in open(WNSEARCHDIR + "/lexnames").readlines():
-        i, name, category = string.split(l)
+        i, name, category = map(str, l.split())
         Lexname(name, PartsOfSpeech[int(category) - 1])
 
 
@@ -870,7 +868,7 @@ class Dictionary:
         return "<%s.%s instance for %s>" % (self.__module__, "Dictionary", self.pos)
 
     def getWord(self, form, line=None):
-        key = string.replace(string.lower(form), " ", "_")
+        key = form.lower().replace(" ", "_")
         pos = self.pos
 
         def loader(key=key, line=line, indexFile=self.indexFile):
@@ -878,7 +876,7 @@ class Dictionary:
             return line and Word(line)
 
         word = _entityCache.get((pos, key), loader)
-        if word:
+        if word is not None:
             return word
         else:
             raise KeyError("%s is not in the %s database" % (repr(form), repr(pos)))
@@ -937,12 +935,12 @@ class Dictionary:
         >>> N[0]
         'hood(n.)
         """
-        if isinstance(index, StringType):
+        if isinstance(index, str):
             return self.getWord(index)
-        elif isinstance(index, IntType):
+        elif isinstance(index, int):
             line = self.indexFile[index]
             return self.getWord(
-                string.replace(line[: string.find(line, " ")], "_", " "), line
+                line[: line.find(" ")].replace("_", " "), line
             )
         else:
             raise TypeError("%s is not a String or Int" % repr(index))
@@ -1058,11 +1056,11 @@ class _IndexFile:
         return 1
 
     def __getitem__(self, index):
-        if isinstance(index, StringType):
+        if isinstance(index, str):
             if hasattr(self, "indexCache"):
                 return self.indexCache[index]
             return binarySearchFile(self.file, index, self.offsetLineCache, 8)
-        elif isinstance(index, IntType):
+        elif isinstance(index, int):
             if hasattr(self, "indexCache"):
                 return self.get(self.keys[index])
             if index < self.nextIndex:
@@ -1475,10 +1473,10 @@ def _initializePOSTables():
         (ADJECTIVE, "adjective adj adj. a s"),
         (ADVERB, "adverb adv adv. r"),
     ):
-        tokens = string.split(abbreviations)
+        tokens = map(str, abbreviations.split())
         for token in tokens:
             _POSNormalizationTable[token] = pos
-            _POSNormalizationTable[string.upper(token)] = pos
+            _POSNormalizationTable[token.upper()] = pos
     for dict in Dictionaries:
         _POSNormalizationTable[dict] = dict.pos
         _POStoDictionaryTable[dict.pos] = dict

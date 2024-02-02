@@ -43,9 +43,8 @@ class PartOfSpeechTagger:
             import os
 
             path = os.path.join(os.path.dirname(__file__), "Brill_lexicon")
-            upkl = open(path, "r")
-            self.lexHash = pickle.load(upkl)
-            upkl.close()
+            with open(path, "rb") as upkl:
+                self.lexHash = pickle.load(upkl)
 
     def tokenize(self, s):
         v = []

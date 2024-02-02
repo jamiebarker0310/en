@@ -11,7 +11,8 @@ path = os.path.join(os.path.dirname(__file__), "ogden_2000.txt")
 
 words = open(path).readlines()
 words = [x.split(" ") for x in words]
-words.sort(lambda a, b: cmp(a[0].lower(), b[0].lower))
+words.sort(key=lambda x: x[0].lower())
+
 
 nouns = [word for word, tags in words if "NN" in tags]
 verbs = [word for word, tags in words if "VB" in tags]

@@ -65,7 +65,6 @@ the L{FeatureBindings} class.
 
 import unittest
 import re
-from types import NoneType
 
 # //////////////////////////////////////////////////////////////////////
 # Variables and variable bindings

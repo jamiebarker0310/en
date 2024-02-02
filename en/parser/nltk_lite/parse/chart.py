@@ -42,7 +42,7 @@ defines three chart parsers:
 """
 
 import re
-from en.parser.nltk_lite.parse import ParseI, AbstractParse
+from en.parser.nltk_lite.parse.abstract_parse import ParseI, AbstractParse
 from en.parser.nltk_lite.parse.tree import Tree
 from en.parser.nltk_lite.parse import cfg
 

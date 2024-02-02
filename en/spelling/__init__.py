@@ -60,7 +60,7 @@ def train(features):
 
 
 path = os.path.join(os.path.dirname(__file__), "spelling.txt")
-NWORDS = train(words(open(path).read()))
+NWORDS = train(words(open(path, "rb").read().decode("unicode_escape")))
 
 alphabet = "abcdefghijklmnopqrstuvwxyz"
 
